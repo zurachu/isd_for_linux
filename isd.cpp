@@ -57,7 +57,7 @@ static int upload( n::piece::Device &d, n::piece::Fs &fs, char *fname )
 static int fs_status( n::piece::Device &d, n::piece::Fs &fs )
 {
 	size_t size = fs.getFreeBlockCount();
-	printf("free_block:%d\nfree_area:%d byte\n", size, size*4096);
+	printf("free_block:%zu\nfree_area:%zu byte\n", size, size*4096);
 	return 0;
 }
 
