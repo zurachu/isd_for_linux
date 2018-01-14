@@ -153,8 +153,8 @@ bool Device::writeFlash( uint32_t rom_adr, const char *buf, size_t len, bool saf
 {
 	DEBUG_MSG( "rom_adr: %x, len: %d\n", rom_adr, len );
 
-	if ( safe
-	     && rom_adr<(pffs_top_+4096) 
+	if ( ( safe
+	       && rom_adr<(pffs_top_+4096) )
 	     || rom_adr>pffs_end_ ) {
 		fprintf( stderr, "%x -> unsafe write flash\n", rom_adr);
 		return false;
