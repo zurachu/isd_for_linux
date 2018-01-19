@@ -1,4 +1,4 @@
-CXXFLAGS=`libusb-config --cflags` -g -Wall -DNDEUBG
+CXXFLAGS=`libusb-config --cflags` -g -Wall -DNDEBUG
 LDFLAGS=`libusb-config --libs` -g
 
 ifeq ($(wildcard .depend),.depend)
