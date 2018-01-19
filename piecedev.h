@@ -8,8 +8,17 @@
 namespace n {
 namespace piece {
 
-class Device {
+class UsbDevHandle {
 	usb_dev_handle *usb_dev_;
+
+public:
+	UsbDevHandle();
+	~UsbDevHandle();
+	operator usb_dev_handle *() const { return usb_dev_; }
+};
+
+class Device {
+	UsbDevHandle usb_dev_;
 
 	uint32_t version_;
 	uint32_t pffs_top_,pffs_end_;
