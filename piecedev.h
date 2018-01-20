@@ -10,11 +10,13 @@ namespace piece {
 
 class UsbDevHandle {
 	usb_dev_handle *usb_dev_;
+	usb_config_descriptor *usb_config_;
 
 public:
 	UsbDevHandle();
 	~UsbDevHandle();
 	operator usb_dev_handle *() const { return usb_dev_; }
+	usb_config_descriptor *config() const { return usb_config_; }
 };
 
 class Device {
