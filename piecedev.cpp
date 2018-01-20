@@ -31,9 +31,7 @@ Init init;
 
 }
 
-
-Device::Device()
-	:mblk_adr_(pffs_top_)
+UsbDevHandle::UsbDevHandle()
 {
 	struct usb_bus *busses;
 	struct usb_bus *bus;
@@ -52,15 +50,23 @@ Device::Device()
 					throw "open failed";
 
 				usb_dev_ = udev;
-
-				readVersion();
-
 				return;
 			}
 		}
 	}
 
 	throw "can't find device";
+}
+
+UsbDevHandle::~UsbDevHandle()
+{
+  usb_close(usb_dev_);
+}
+
+Device::Device()
+	:mblk_adr_(pffs_top_)
+{
+	readVersion();
 }
 
 void Device::readVersion()
