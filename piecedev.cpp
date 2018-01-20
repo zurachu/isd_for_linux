@@ -50,6 +50,7 @@ UsbDevHandle::UsbDevHandle()
 					throw "open failed";
 
 				usb_dev_ = udev;
+				usb_config_ = dev->config;
 				return;
 			}
 		}
@@ -66,6 +67,14 @@ UsbDevHandle::~UsbDevHandle()
 Device::Device()
 	:mblk_adr_(pffs_top_)
 {
+	usb_config_descriptor *config = usb_dev_.config();
+
+	if ( ::usb_set_configuration( usb_dev_, config->bConfigurationValue ) < 0 )
+		throw ::usb_strerror();
+
+	if ( ::usb_claim_interface( usb_dev_, config->interface->altsetting->bInterfaceNumber ) < 0 )
+		throw ::usb_strerror();
+
 	readVersion();
 }
 
