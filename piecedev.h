@@ -67,6 +67,8 @@ public:
 
 	void setAppStat( int stat );
 	int getAppStat();
+
+	void dumpVersion();
 };
 
 }

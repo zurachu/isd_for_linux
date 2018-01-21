@@ -15,6 +15,7 @@ static void usage( std::FILE *out )
 	std::fputs("isd -l -- list file\n",out);
 	std::fputs("isd -r filename -- download file\n",out);
 	std::fputs("isd -s filename -- upload file\n",out);
+	std::fputs("isd -v -- show version\n",out);
 }
 
 static int download( n::piece::Device &d, n::piece::Fs &fs, char *fname )
@@ -70,7 +71,7 @@ int main( int argc, char **argv )
 		n::piece::Device d;
 		n::piece::Fs fs( d );
 		while ( 1 ) {
-			int c = getopt( argc, argv, "lr:d:c?hs:fF" );
+			int c = getopt( argc, argv, "lr:d:c?hs:fFv" );
 			
 			switch ( c ) {
 			case 'l':
@@ -100,6 +101,10 @@ int main( int argc, char **argv )
 
 			case 'F':
 				fs.format();
+				return 0;
+
+			case 'v':
+				d.dumpVersion();
 				return 0;
 
 			default:
