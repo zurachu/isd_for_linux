@@ -11,8 +11,10 @@ static void usage( std::FILE *out )
 	std::fputs("isd -l -- list file\n",out);
 	std::fputs("isd -r filename -- download file\n",out);
 	std::fputs("isd -c -- device check only\n",out);
+	std::fputs("isd -d filename -- delete file\n",out);
 	std::fputs("isd -s filename -- upload file\n",out);
 	std::fputs("isd -f -- show file system status\n",out);
+	std::fputs("isd -F -- format file system\n",out);
 }
 
 static int download( n::piece::Device &d, n::piece::Fs &fs, char *fname )
