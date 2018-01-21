@@ -52,8 +52,7 @@ Fs::Directory *Fs::searchFile( const char *fname )
 
 Fs::Directory *Fs::freeDir( )
 {
-	Directory *d;
-
+	Fs::Directory *d = master_block_.directory;
 	for ( int i=0; i<MAXDIR; i++ ) {
 		const char *name = d[i].name;
 
