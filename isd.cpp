@@ -57,7 +57,7 @@ static int upload( n::piece::Device &d, n::piece::Fs &fs, char *fname )
 static int fs_status( n::piece::Device &d, n::piece::Fs &fs )
 {
 	size_t size = fs.getFreeBlockCount();
-	printf("free_block:%zu\nfree_area:%zu byte\n", size, size*4096);
+	printf("%5zu sectors (%zu bytes) free\n", size, size*4096);
 	return 0;
 }
 
@@ -73,7 +73,7 @@ int main( int argc, char **argv )
 			switch ( c ) {
 			case 'l':
 				fs.dumpDir();
-				return 0;
+				return fs_status( d, fs );
 
 			case '?':
 			case 'h':
