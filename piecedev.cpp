@@ -234,7 +234,7 @@ void Device::setAppStat( int stat )
 
 void Device::dumpVersion( )
 {
-	std::printf( "BIOS version = 1.30\n" );
+	std::printf( "BIOS version = %d.%02d\n", version_ >> 8, version_ & 0xFF );
 	std::printf( "BIOS date    = 2005.07.09\n" );
 	std::printf( "SRAM top adr = 0x100000\n" );
 	std::printf( "SRAM end adr = 0x13ffff\n" );
@@ -242,8 +242,8 @@ void Device::dumpVersion( )
 	std::printf( "HW version   = 1.00\n" );
 	std::printf( "SYSTEM clock = 24.000 MHz\n" );
 	std::printf( "VDDE voltage = 3.300 V\n" );
-	std::printf( "PFFS top adr = 0xc28000\n" );
-	std::printf( "PFFS end adr = 0xc7ffff\n" );
+	std::printf( "PFFS top adr = 0x%06x\n", pffs_top_ );
+	std::printf( "PFFS end adr = 0x%06x\n", pffs_end_ - 1 );
 }
 
 }
