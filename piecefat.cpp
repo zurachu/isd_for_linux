@@ -33,7 +33,7 @@ void Fs::dumpDir( )
 		const char *name = d[i].name;
 
 		if ( (*name!=0) && (*name!=-1) )
-			std::puts(name);
+			std::printf( "+%3d:%6u %s\n", i, d[i].size, name );
 	}
 }
 
