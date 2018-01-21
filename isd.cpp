@@ -73,7 +73,7 @@ int main( int argc, char **argv )
 			switch ( c ) {
 			case 'l':
 				fs.dumpDir();
-				return 0;
+				return fs_status( d, fs );
 
 			case '?':
 			case 'h':
