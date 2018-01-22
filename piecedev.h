@@ -1,7 +1,7 @@
 #ifndef __piecedev_h_
 #define __piecedev_h_
 
-#include <usb.h>
+#include <libusb.h>
 #include <stdint.h>
 #include <cstdio>
 
@@ -9,14 +9,12 @@ namespace n {
 namespace piece {
 
 class UsbDevHandle {
-	usb_dev_handle *usb_dev_;
-	usb_config_descriptor *usb_config_;
+	libusb_device_handle *usb_dev_;
 
 public:
 	UsbDevHandle();
 	~UsbDevHandle();
-	operator usb_dev_handle *() const { return usb_dev_; }
-	usb_config_descriptor *config() const { return usb_config_; }
+	operator libusb_device_handle *() const { return usb_dev_; }
 };
 
 class Device {

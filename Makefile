@@ -1,5 +1,5 @@
-CXXFLAGS=`libusb-config --cflags` -g -Wall -DNDEBUG
-LDFLAGS=`libusb-config --libs` -g
+CXXFLAGS=-I/usr/local/include/libusb-1.0 -g -Wall -DNDEBUG
+LDFLAGS=-lusb-1.0 -g
 
 ifeq ($(wildcard .depend),.depend)
 all: isd
