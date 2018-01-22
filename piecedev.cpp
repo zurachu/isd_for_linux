@@ -91,12 +91,17 @@ void Device::readVersion()
 	read( info, 32 );
 
 	uint32_t size = *((uint16_t*)(info));
-	version_ = *((uint16_t*)(info+4));
-
+	if( size != 32 )
+		throw "unexpected size of system info";
+	hard_ver_ = *((uint16_t*)(info+2));
+	bios_ver_ = *((uint16_t*)(info+4));
+	bios_date_ = *((uint16_t*)(info+6));
+	sys_clock_ = *((uint32_t*)(info+8));
+	vdde_voltage_ = *((uint16_t*)(info+12));
+	sram_top_ = *((uint32_t*)(info+16));
+	sram_end_ = *((uint32_t*)(info+20));
 	pffs_top_ = *((uint32_t*)(info+24));
 	pffs_end_ = *((uint32_t*)(info+28));
-
-	DEBUG_MSG( "size: %x version:%x top:%x end:%x\n", size, version_, pffs_top_, pffs_end_ );
 }
 
 void Device::write( const char *buf, size_t len, int timeout )
@@ -234,14 +239,15 @@ void Device::setAppStat( int stat )
 
 void Device::dumpVersion( )
 {
-	std::printf( "BIOS version = %d.%02d\n", version_ >> 8, version_ & 0xFF );
-	std::printf( "BIOS date    = 2005.07.09\n" );
-	std::printf( "SRAM top adr = 0x100000\n" );
-	std::printf( "SRAM end adr = 0x13ffff\n" );
-	std::printf( "SRAM size    = 256 KB\n" );
-	std::printf( "HW version   = 1.00\n" );
-	std::printf( "SYSTEM clock = 24.000 MHz\n" );
-	std::printf( "VDDE voltage = 3.300 V\n" );
+	std::printf( "BIOS version = %d.%02d\n", bios_ver_ >> 8, bios_ver_ & 0xFF );
+	std::printf( "BIOS date    = %d.%02d.%02d\n", 2000 + ( bios_date_ >> 9 )
+		, ( bios_date_ >> 5 ) & 0x0F, bios_date_ & 0x1F );
+	std::printf( "SRAM top adr = 0x%06x\n", sram_top_ );
+	std::printf( "SRAM end adr = 0x%06x\n", sram_end_ - 1 );
+	std::printf( "SRAM size    = %d KB\n", ( sram_end_ - sram_top_ ) >> 10 );
+	std::printf( "HW version   = %d.%02d\n", hard_ver_ >> 8, hard_ver_ & 0xFF );
+	std::printf( "SYSTEM clock = %5.3f MHz\n", sys_clock_ / 1e6 );
+	std::printf( "VDDE voltage = %5.3f V\n", vdde_voltage_ / 1e3 );
 	std::printf( "PFFS top adr = 0x%06x\n", pffs_top_ );
 	std::printf( "PFFS end adr = 0x%06x\n", pffs_end_ - 1 );
 }
