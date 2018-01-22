@@ -23,4 +23,4 @@ clean:
 
 .PHONY: depend
 depend:
-	gcc -MM *.cpp > .depend
+	gcc -MM $(CXXFLAGS) *.cpp > .depend
