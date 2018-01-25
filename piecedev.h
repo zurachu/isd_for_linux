@@ -52,6 +52,7 @@ class Device {
 	bool doWriteFlash( uint32_t rom_adr, uint32_t buf_adr, size_t len );
 public:
 	Device();
+	~Device();
 
 	void readMem( uint32_t begin, char *buf, size_t len );
 	void writeMem( uint32_t begin, const char *buf, size_t len );

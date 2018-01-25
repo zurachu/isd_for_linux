@@ -62,7 +62,8 @@ UsbDevHandle::UsbDevHandle()
 
 UsbDevHandle::~UsbDevHandle()
 {
-  usb_close(usb_dev_);
+	usb_reset(usb_dev_);
+	usb_close(usb_dev_);
 }
 
 Device::Device()
@@ -77,6 +78,13 @@ Device::Device()
 		throw ::usb_strerror();
 
 	readVersion();
+}
+
+Device::~Device()
+{
+	usb_config_descriptor *config = usb_dev_.config();
+
+	::usb_release_interface( usb_dev_, config->interface->altsetting->bInterfaceNumber );
 }
 
 void Device::readVersion()
