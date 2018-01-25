@@ -17,3 +17,4 @@ isd [オプション]
 - -l - P/ECE にあるファイルを列挙
 - -r filename - P/ECE にあるファイルをダウンロード
 - -s filename - P/ECE にファイルをアップロード
+- -v - バージョン情報
