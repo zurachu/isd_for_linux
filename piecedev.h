@@ -22,7 +22,9 @@ public:
 class Device {
 	UsbDevHandle usb_dev_;
 
-	uint32_t version_;
+	uint32_t hard_ver_,bios_ver_,bios_date_;
+	uint32_t sys_clock_,vdde_voltage_;
+	uint32_t sram_top_,sram_end_;
 	uint32_t pffs_top_,pffs_end_;
 	uint32_t &mblk_adr_;
 
@@ -67,6 +69,8 @@ public:
 
 	void setAppStat( int stat );
 	int getAppStat();
+
+	void dumpVersion();
 };
 
 }
