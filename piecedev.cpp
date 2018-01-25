@@ -47,7 +47,8 @@ UsbDevHandle::UsbDevHandle()
 
 UsbDevHandle::~UsbDevHandle()
 {
-  libusb_close(usb_dev_);
+	libusb_reset_device( usb_dev_ );
+  libusb_close( usb_dev_ );
 }
 
 Device::Device()
@@ -62,6 +63,11 @@ Device::Device()
 		throw libusb_strerror( static_cast<enum libusb_error>(r) );
 
 	readVersion();
+}
+
+Device::~Device()
+{
+	libusb_release_interface( usb_dev_, 0 );
 }
 
 void Device::readVersion()
