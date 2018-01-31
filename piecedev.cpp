@@ -22,9 +22,14 @@ class Init
 {
 public:
 	Init() {
-		usb_init();
-		usb_find_busses();
-		usb_find_devices();
+		int r = libusb_init( NULL );
+		if ( r < 0 ) {
+			throw libusb_strerror( static_cast<enum libusb_error>(r) );
+		}
+	}
+
+	~Init() {
+		libusb_exit( NULL );
 	}
 };
 
@@ -34,57 +39,36 @@ Init init;
 
 UsbDevHandle::UsbDevHandle()
 {
-	struct usb_bus *busses;
-	struct usb_bus *bus;
-
-	busses = usb_get_busses();
-
-	for ( bus=busses; bus; bus=bus->next ) {
-		struct usb_device *dev;
-		for ( dev = bus->devices; dev; dev = dev->next ) {
-			if ( dev->descriptor.idProduct == USB_ID_PRODUCT && dev->descriptor.idVendor == USB_ID_VENDOR ) {
-
-				usb_dev_handle *udev;
-				udev = usb_open(dev);
-
-				if ( udev == NULL )
-					throw "open failed";
-
-				usb_dev_ = udev;
-				usb_config_ = dev->config;
-				return;
-			}
-		}
-	}
-
-	throw "can't find device";
+	libusb_device_handle *udev;
+	udev = libusb_open_device_with_vid_pid( NULL, USB_ID_VENDOR, USB_ID_PRODUCT );
+	if ( udev == NULL )
+		throw "can't find device";
+	usb_dev_ = udev;
 }
 
 UsbDevHandle::~UsbDevHandle()
 {
-	usb_reset(usb_dev_);
-	usb_close(usb_dev_);
+	libusb_reset_device( usb_dev_ );
+  libusb_close( usb_dev_ );
 }
 
 Device::Device()
 	:mblk_adr_(pffs_top_)
 {
-	usb_config_descriptor *config = usb_dev_.config();
+	int r = libusb_set_configuration( usb_dev_, 1 );
+	if ( r < 0 )
+		throw libusb_strerror( static_cast<enum libusb_error>(r) );
 
-	if ( ::usb_set_configuration( usb_dev_, config->bConfigurationValue ) < 0 )
-		throw ::usb_strerror();
-
-	if ( ::usb_claim_interface( usb_dev_, config->interface->altsetting->bInterfaceNumber ) < 0 )
-		throw ::usb_strerror();
+	r = libusb_claim_interface( usb_dev_, 0 );
+	if ( r < 0 )
+		throw libusb_strerror( static_cast<enum libusb_error>(r) );
 
 	readVersion();
 }
 
 Device::~Device()
 {
-	usb_config_descriptor *config = usb_dev_.config();
-
-	::usb_release_interface( usb_dev_, config->interface->altsetting->bInterfaceNumber );
+	libusb_release_interface( usb_dev_, 0 );
 }
 
 void Device::readVersion()
@@ -114,14 +98,22 @@ void Device::readVersion()
 
 void Device::write( const char *buf, size_t len, int timeout )
 {
-	if ( ::usb_bulk_write( usb_dev_, PIECE_END_POINT_OUT, const_cast<char*>(buf), len, timeout )<0 )
-		throw ::usb_strerror();
+	unsigned char *data = reinterpret_cast<unsigned char*>(const_cast<char*>(buf));
+	int actual_length = 0;
+	int r = libusb_bulk_transfer( usb_dev_, PIECE_END_POINT_OUT
+		, data, len, &actual_length, timeout );
+	if ( r < 0 )
+		throw libusb_strerror( static_cast<enum libusb_error>(r) );
 }
 
 void Device::read( char *buf, size_t len, int timeout )
 {
-	if ( ::usb_bulk_read( usb_dev_, PIECE_END_POINT_IN, buf, len, timeout )<0 )
-		throw ::usb_strerror();
+	unsigned char *data = reinterpret_cast<unsigned char*>(buf);
+	int actual_length = 0;
+	int r = libusb_bulk_transfer( usb_dev_, PIECE_END_POINT_IN
+		, data, len, &actual_length, timeout );
+	if ( r < 0 )
+		throw libusb_strerror( static_cast<enum libusb_error>(r) );
 }
 
 void Device::readMem( uint32_t begin, char *buf, size_t len )
