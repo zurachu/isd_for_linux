@@ -1,4 +1,4 @@
-AM_CXXFLAGS = -g -Wall @libusb_CFLAGS@
+AM_CXXFLAGS = -g -Wall -DNDEBUG @libusb_CFLAGS@
 
 bin_PROGRAMS = isd mem
 

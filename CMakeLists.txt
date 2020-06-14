@@ -14,16 +14,17 @@ pkg_check_modules(LIBUSB_1_0 REQUIRED libusb-1.0)
 
 
 add_compile_options(
-    -fPIC 
+    -fPIC
     -g
     -Wall
+    -DNDEBUG
 )
 include_directories(${LIBUSB_1_0_INCLUDE_DIRS})
 link_directories(${LIBUSB_1_0_LIBRARY_DIRS})
 
 add_executable(isd
     isd.cpp
-    piecedev.cpp 
+    piecedev.cpp
     debug.cpp
     piecefat.cpp
 )
