@@ -13,6 +13,7 @@ static void usage( std::FILE *out )
 	std::fputs("isd -F -- format file system\n",out);
 	std::fputs("isd -f -- show file system status\n",out);
 	std::fputs("isd -l -- list file\n",out);
+	std::fputs("isd -R filename -- run srf file\n",out);
 	std::fputs("isd -r filename -- download file\n",out);
 	std::fputs("isd -s filename -- upload file\n",out);
 	std::fputs("isd -v -- show version\n",out);
@@ -57,6 +58,30 @@ static int upload( n::piece::Device &d, n::piece::Fs &fs, char *fname )
 	return 0;
 }
 
+static int run_srf_file( n::piece::Device &d, char *fname )
+{
+	struct stat buf;
+	if ( stat( fname, &buf ) < 0 ) {
+		std::perror("stat");
+		return 1;
+	}
+
+	FILE *fp = fopen( fname, "rb" );
+
+	if ( fp == NULL ){
+		std::perror("fopen");
+		return 1;
+	}
+
+	d.setAppStat( n::piece::Device::APP_STOP );
+	d.uploadSrf( fp );
+	d.setAppStat( n::piece::Device::APP_RUN );
+
+	fclose( fp );
+
+	return 0;
+}
+
 static int fs_status( n::piece::Device &d, n::piece::Fs &fs )
 {
 	size_t size = fs.getFreeBlockCount();
@@ -71,7 +96,7 @@ int main( int argc, char **argv )
 		n::piece::Device d;
 		n::piece::Fs fs( d );
 		while ( 1 ) {
-			int c = getopt( argc, argv, "lr:d:c?hs:fFv" );
+			int c = getopt( argc, argv, "lr:d:c?hs:fFvR:" );
 			
 			switch ( c ) {
 			case 'l':
@@ -106,6 +131,9 @@ int main( int argc, char **argv )
 			case 'v':
 				d.dumpVersion();
 				return 0;
+
+			case 'R':
+				return run_srf_file( d, optarg );
 
 			default:
 				usage( stderr );
