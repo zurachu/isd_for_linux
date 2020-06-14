@@ -1,5 +1,7 @@
 #include "piecedev.h"
 #include "piecefat.h"
+#include <string>
+#include <algorithm>
 #include <cstdio>
 #include <getopt.h>
 #include <unistd.h>
@@ -19,7 +21,7 @@ static void usage( std::FILE *out )
 	std::fputs("isd -v -- show version\n",out);
 }
 
-static int download( n::piece::Device &d, n::piece::Fs &fs, char *fname )
+static int download( n::piece::Device &d, n::piece::Fs &fs, char const *fname )
 {
 	n::piece::Fs::File file( fs, fname );
 	std::FILE *out = std::fopen( fname, "wb" );
@@ -32,24 +34,30 @@ static int download( n::piece::Device &d, n::piece::Fs &fs, char *fname )
 	return 0;
 }
 
-static int upload( n::piece::Device &d, n::piece::Fs &fs, char *fname )
+static int upload( n::piece::Device &d, n::piece::Fs &fs, char const *fname )
 {
 	struct stat buf;
-	if ( stat(fname,&buf) < 0 ) {
+	if ( stat( fname, &buf ) < 0 ) {
 		std::perror("stat");
 		return 1;
 	}
 
+	std::string uploadFileName(fname);
+	size_t pathDelimiterPos = uploadFileName.rfind('/');
+	if (pathDelimiterPos != std::string::npos)
+		uploadFileName.erase(0, pathDelimiterPos + 1);
+	std::transform(uploadFileName.begin(), uploadFileName.end(), uploadFileName.begin(), std::tolower);
+
 	size_t size = buf.st_size;
 	FILE *fp = fopen( fname, "rb" );
 
-	if ( fp == NULL ){
+	if ( fp == NULL ) {
 		std::perror("fopen");
 		return 1;
 	}
 
-	fs.createFile( fname, size );
-	n::piece::Fs::File file( fs, fname );
+	fs.createFile( uploadFileName.c_str(), size );
+	n::piece::Fs::File file( fs, uploadFileName.c_str() );
 
 	file.upload( fp );
 
