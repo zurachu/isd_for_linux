@@ -69,6 +69,7 @@ public:
 	void setAppStat( int stat );
 	int getAppStat();
 
+	void uploadSrf( std::FILE *in );
 	void dumpVersion();
 };
 

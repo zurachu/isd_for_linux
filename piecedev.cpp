@@ -1,5 +1,6 @@
 #include "piecedev.h"
 #include <stdint.h>
+#include <vector>
 #include <cstring>
 #include <cstdio>
 #include "debug.h"
@@ -235,6 +236,65 @@ void Device::setAppStat( int stat )
 	}
 
 	throw "appstat timeout";
+}
+
+namespace {
+
+uint32_t read_big_u32( unsigned char *mem )
+{
+	return (((((mem[0]<<8)+mem[1])<<8)+mem[2])<<8)+mem[3];
+}
+
+uint16_t read_big_u16( unsigned char *mem )
+{
+	return (mem[0]<<8)+mem[1];
+}
+
+}
+
+void Device::uploadSrf( std::FILE *in )
+{
+	unsigned char buf[64];
+	std::vector<char> tbuff( 32*1024 );
+
+	fseek( in, 0, SEEK_SET );
+	if ( fread( buf, 1, 16, in ) != 16 ) {
+		std::perror("fread");
+		return;
+	}
+
+	if ( (read_big_u16(buf) | 8 ) != 0x000e ) {
+		std::perror("header");
+		return;
+	}
+
+	long next = read_big_u32( buf+8 );
+
+	while ( next ) {
+		fseek( in, next, SEEK_SET );
+		if ( fread( buf, 1, 44, in ) != 44 )
+			break;
+
+		next = read_big_u32(buf);
+
+		size_t len = read_big_u32( buf+38 );
+
+		if ( len ) {
+			uint32_t adr = read_big_u32( buf+10 );
+			long pos = read_big_u32( buf+34 );
+			if ( pos ) {
+				std::printf( "  %06x-%06lx\n", adr, adr+len-1 );
+				fseek( in, pos, SEEK_SET );
+				while ( len ) {
+					size_t const len2 = std::min( len, tbuff.size() );
+					fread( &tbuff[0], 1, len2, in );
+					writeMem(adr, &tbuff[0], len2);
+					adr += len2;
+					len -= len2;
+				}
+			}
+		}
+	}
 }
 
 void Device::dumpVersion( )
