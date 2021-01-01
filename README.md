@@ -1,6 +1,7 @@
 # isd_for_linux
 
-http://int.main.jp/prog/lin_piece.html の「Linux用isd」の改修
+Linux, BSD, macOS で P/ECE と通信するコマンドラインツール
+http://int.main.jp/prog/lin_piece.html （リンク切れ）で公開されていた 「Linux用isd」の改修
 
 # setup
 
