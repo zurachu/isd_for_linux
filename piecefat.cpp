@@ -10,7 +10,7 @@ namespace {
 void fileNotFound( const char *fname )
 {
 	static char tmp[64];
-	sprintf( tmp, "%s: file not found", fname );
+	snprintf( tmp, sizeof(tmp), "%s: file not found", fname );
 
 	throw tmp;
 }
@@ -123,7 +123,7 @@ void Fs::makeChain( uint16_t *pchain, int blkcnt, int next )
 	uint16_t *fat = master_block_.fat_chain;
 
 	if ( blkcnt <= 0 ) {
-		*pchain = MAXFAT+1;
+		*pchain = FAT_END;
 		return;
 	}
 
@@ -291,7 +291,7 @@ void Fs::format()
 
 	memset( m->directory, 0, sizeof(m->directory) );
 	memset( m->fat_chain, 0xff, sizeof(m->fat_chain) );
-	m->fat_chain[0] = MAXFAT+1;
+	m->fat_chain[0] = FAT_END;
 
 	update();
 }

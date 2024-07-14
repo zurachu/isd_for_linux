@@ -18,6 +18,7 @@ static void usage( std::FILE *out )
 	std::fputs("isd -R filename -- run srf file\n",out);
 	std::fputs("isd -r filename -- download file\n",out);
 	std::fputs("isd -s filename -- upload file\n",out);
+	std::fputs("isd -k all.img@ku.srf -- update kernel\n",out);
 	std::fputs("isd -v -- show version\n",out);
 }
 
@@ -90,6 +91,63 @@ static int run_srf_file( n::piece::Device &d, char *fname )
 	return 0;
 }
 
+static int update_kernel( n::piece::Device &d, char *arg )
+{
+	char *at_sign = strchr(arg, '@');
+	if ( at_sign == NULL ){
+		std::fprintf( stderr, "missing '@'\n" );
+		return 1;
+	}
+
+	*at_sign = '\0';
+
+	const char *ku_path = at_sign + 1;
+
+	char buf[512*1024];
+
+	FILE *fp = fopen( arg, "rb" );
+
+	if ( fp == NULL ){
+		std::perror("fopen");
+		return 1;
+	}
+
+	struct stat stat_buf;
+	if ( stat( arg, &stat_buf ) < 0 ) {
+		std::perror("stat");
+		fclose( fp );
+		return 1;
+	}
+
+	size_t len = stat_buf.st_size;
+	if ( len >= sizeof(buf) ) {
+		std::fprintf( stderr, "kernel image too large\n" );
+		fclose( fp );
+		return 1;
+	}
+
+	if ( fread( buf, 1, len, fp ) != len ) {
+		std::perror("fread");
+		fclose( fp );
+		return 1;
+	}
+
+	fclose( fp );
+
+	fp = fopen( ku_path, "rb" );
+	if ( fp == NULL ){
+		std::perror("fopen");
+		return 1;
+	}
+
+	d.setAppStat( n::piece::Device::APP_STOP );
+	d.writeMem( 0x102c00, buf, len );
+	d.uploadSrf( fp );
+	d.setAppStat( n::piece::Device::APP_RUN );
+	fclose( fp );
+	return 0;
+}
+
 static int fs_status( n::piece::Device &d, n::piece::Fs &fs )
 {
 	size_t size = fs.getFreeBlockCount();
@@ -100,12 +158,12 @@ static int fs_status( n::piece::Device &d, n::piece::Fs &fs )
 int main( int argc, char **argv )
 {
 	try {
-		
+
 		n::piece::Device d;
 		n::piece::Fs fs( d );
 		while ( 1 ) {
-			int c = getopt( argc, argv, "lr:d:c?hs:fFvR:" );
-			
+			int c = getopt( argc, argv, "lr:d:c?hs:fFvR:k:" );
+
 			switch ( c ) {
 			case 'l':
 				fs.dumpDir();
@@ -143,12 +201,15 @@ int main( int argc, char **argv )
 			case 'R':
 				return run_srf_file( d, optarg );
 
+			case 'k':
+				return update_kernel( d, optarg );
+
 			default:
 				usage( stderr );
 				return 1;
 			}
 		}
-		
+
 	} catch ( const char *err ) {
 		std::fprintf( stderr, "%s\n", err );
 		return 1;

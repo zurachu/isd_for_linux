@@ -16,6 +16,7 @@ class Fs
 	static const int MAXDIR=96;
 	static const int MAXFAT=496;
 	static const uint16_t FAT_FREE=0xffff;
+	static const uint16_t FAT_END=0xeeee;
 	static const size_t FNAME_LEN=23;
 
 	struct Directory {
